@@ -1,0 +1,31 @@
+<!DOCTYPE html PUBLIC "-//W3C//DTD XHTML 1.0 Transitional//EN" "http://www.w3.org/TR/xhtml1/DTD/xhtml1-transitional.dtd">
+<html xmlns="http://www.w3.org/1999/xhtml">
+  <head>
+  	<meta content="text/html; charset=UTF-8" http-equiv="content-type" />
+  </head>
+  <body class="lift:content_id=main">
+    <div id="main" class="lift:surround?with=default;at=content">
+
+      <h2>What do you want to do today?!</h2>
+
+	  <form class="lift:form.ajax">
+		<div class="lift:AddTodo">
+            <span id="add_form"/>
+            <span class="lift:Msg?id=items_description;errorClass=error">error</span>
+			<!--<span class="lift:field?name=description"/>-->
+			<!-- <input name="" id="item_desc"/>  -->
+			<!-- <input type="submit" value="Submit"/>  -->
+			<!--<span class="lift:field_msg?name=description"/>-->
+		</div>
+	  </form>
+
+	  <div>
+		Asking youself what todo?<br/>
+	  	Here you are:
+	  	<div id="todo_list">
+	  		<lift:embed what="/todo/_list"/>
+	  	</div>
+	  </div>
+    </div>
+  </body>
+</html>

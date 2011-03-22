@@ -1,0 +1,15 @@
+/lib_managed
+sbt
+sbt.bat
+/target
+/.idea
+/bin
+.classpath
+.project
+sbt-launcher.jar
+*.swp
+whatTodo.iml
+.scala_dependencies
+/project/build/target
+/project/boot
+
