@@ -13,14 +13,17 @@ import code.model._
 
 object AddTodo {
 
+  val logger = Logger(this.getClass)
+
 	def render = {
+
+    logger.info("I'm called")
 
 		def process(item: Item): JsCmd = {
 
-      val descId = item.description.uniqueFieldId match {
-        case Full(s) => s
-        case _ => ""
-      }
+      logger.info("My item id is " + item.id)
+
+      val descId = item.description.uniqueFieldId openOr ""
 
       val errors = item.validate
       if (!errors.isEmpty) {
@@ -42,7 +45,7 @@ object AddTodo {
       }
 		}
 
-		val item = Item.create
+    val item = Item.create
 		"#add_form" #> item.toForm(Full("Plan!"), { process _ })
 	}
 }

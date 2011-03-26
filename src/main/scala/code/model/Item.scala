@@ -7,7 +7,7 @@ import mapper._
 import util._
 import scala.xml.{NodeSeq, Text}
 
-class Item extends LongKeyedMapper[Item] with IdPK {
+class Item extends LongKeyedMapper[Item] with IdPK with CreatedTrait {
 
 	def getSingleton = Item
 
@@ -24,26 +24,21 @@ class Item extends LongKeyedMapper[Item] with IdPK {
 		}
 	}
 
-	object createdAt extends MappedDateTime(this) {
-		override def dbIncludeInForm_? = false
+	object expiresAt extends MappedDateTime(this) {
+		override def dbDisplay_? = false
 	}
 
-	object expiresAt extends MappedDateTime(this) {
-		override def dbIncludeInForm_? = false
-	}
+  override lazy val createdAt = new MyCreatedAt(this) {
+    override def dbDisplay_? = false
+  }
 }
 
 object Item extends Item with LongKeyedMetaMapper[Item] {
 
   formatFormElement =
     (_, form) =>
-    <xml:group>{form}</xml:group>
+      <xml:group>{form}</xml:group>
 
-	override def fieldOrder = List(description, createdAt, expiresAt)
+	override def fieldOrder = List(id, description, createdAt, expiresAt)
 	override def dbTableName = "items"
-
-	override def beforeCreate = setCreatedAt _ :: super.beforeCreate
-
-	private def setCreatedAt(obj: Item): Unit =
-		obj.createdAt(new java.util.Date)
 }
