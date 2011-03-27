@@ -8,16 +8,9 @@
 
       <h2>What do you want to do today?!</h2>
 
-	  <form class="lift:form.ajax">
-		<div class="lift:AddTodo">
-            <span id="add_form"/>
-            <span class="lift:Msg?id=items_description;errorClass=error">error</span>
-			<!--<span class="lift:field?name=description"/>-->
-			<!-- <input name="" id="item_desc"/>  -->
-			<!-- <input type="submit" value="Submit"/>  -->
-			<!--<span class="lift:field_msg?name=description"/>-->
-		</div>
-	  </form>
+      <div id="todo_add">
+        <lift:embed what="/todo/_add"/>
+      </div>
 
 	  <div>
 		Asking youself what todo?<br/>

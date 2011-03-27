@@ -35,6 +35,7 @@ object AddTodo {
 
         S.notice("Successfully added")
 
+        SetHtml("todo_add", <lift:embed what="/todo/_add"/>) &
         SetHtml("todo_list", <lift:embed what="/todo/_list"/>) &
         SetValById(descId, "") &
         Focus(descId)
@@ -45,7 +46,6 @@ object AddTodo {
       }
 		}
 
-    val item = Item.create
-		"#add_form" #> item.toForm(Full("Plan!"), { process _ })
+		"#add_form" #> Item.create.toForm(Full("Plan!"), { process _ })
 	}
 }
