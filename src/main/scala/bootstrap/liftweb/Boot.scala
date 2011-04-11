@@ -1,16 +1,15 @@
 package bootstrap.liftweb
 
+import scala.util.control.Exception.ultimately
 import net.liftweb._
 import util._
-import Helpers._
-
+import squerylrecord.SquerylRecord
 import common._
 import http._
 import sitemap._
 import Loc._
 import mapper._
-
-import code.lib.db.DBVendor
+import org.squeryl.adapters.MySQLAdapter
 
 /**
  * A class that's instantiated early and run.  It allows the application
@@ -36,7 +35,16 @@ class Boot {
     // Force the request to be UTF-8
     LiftRules.early.append(_.setCharacterEncoding("UTF-8"))
 
-    DB.defineConnectionManager(DefaultConnectionIdentifier, DBVendor)
-    MapperRules.columnName = (_,name) => StringHelpers.snakify(name)
+    DB.defineConnectionManager(DefaultConnectionIdentifier,
+       new StandardDBVendor(Props.get("db.driver") openOr "org.h2.Driver",
+                            Props.get("db.url") openOr "jdbc:h2:test",
+                            Props.get("db.user"), Props.get("db.password")))
+
+    SquerylRecord.init(() => new MySQLAdapter)
+
+    S.addAround(DB.buildLoanWrapper(DefaultConnectionIdentifier::Nil))
+    S.addAround(new LoanWrapper {
+      def apply[T](f: => T): T = ultimately(println(S.getAllNotices))(f)
+    })
 }
 }

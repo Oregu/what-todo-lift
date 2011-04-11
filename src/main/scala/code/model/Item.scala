@@ -1,44 +1,52 @@
 package code
 package model
 
+import DBSchema._
 import net.liftweb._
 import common._
-import mapper._
+import record.{MetaRecord, Record}
+import record.field._
+import squerylrecord.KeyedRecord
+
+import org.squeryl.PrimitiveTypeMode._
+import org.squeryl.annotations.Column
+
 import util._
-import scala.xml.{NodeSeq, Text}
+import scala.xml.NodeSeq
 
-class Item extends LongKeyedMapper[Item] with IdPK with CreatedTrait {
+class Item extends Record[Item] with KeyedRecord[Long] {
 
-	def getSingleton = Item
+  override def meta = Item
 
-	object description extends MappedString(this, 255) with ValidateLength {
-		override def setFilter = trim _ :: super.setFilter
-    override def fieldId = uniqueFieldId.toOption.map(Text(_))
-		override def validations = noEmptyDescriptions _ :: super.validations
+  @Column(name = "id")
+  val idField = new LongField(this)
 
-		def noEmptyDescriptions(desc: String) = {
-			if (desc.isEmpty)
-				List[FieldError](FieldError(this, "You didn't provide anything"))
-			else
-				List[FieldError]()
-		}
-	}
+  val description = new StringField(this, 255, "") {
 
-	object expiresAt extends MappedDateTime(this) {
-		override def dbDisplay_? = false
-	}
+    val msgFieldId = Full("items_description_msg")
 
-  override lazy val createdAt = new MyCreatedAt(this) {
-    override def dbDisplay_? = false
+    override def setFilter = notNull _ :: trim _ :: super.setFilter
+
+    override def validations = noEmptyDescriptions _ :: super.validations
+
+    def noEmptyDescriptions(desc: String) : List[FieldError] = {
+      if (desc.isEmpty)
+        List[FieldError](FieldError(
+          new FieldIdentifier { override def uniqueFieldId = msgFieldId },
+          "You didn't provide anything"))
+      else
+        List[FieldError]()
+    }
   }
+
+  val expiresAt = new OptionalDateTimeField(this)
 }
 
-object Item extends Item with LongKeyedMetaMapper[Item] {
+object Item extends Item with MetaRecord[Item] {
 
-  formatFormElement =
-    (_, form) =>
-      <xml:group>{form}</xml:group>
+  def findAll = from(items)(select(_)).toList
 
-	override def fieldOrder = List(id, description, createdAt, expiresAt)
-	override def dbTableName = "items"
+	override def fieldOrder = List(idField, description, expiresAt)
+
+  formTemplate = Full(<lift:field name="description"/>)
 }

@@ -10,6 +10,8 @@ import JsCmds._
 import JE._
 import scala.xml.NodeSeq
 import code.model._
+import DBSchema._
+import squerylrecord.RecordTypeMode._
 
 object AddTodo {
 
@@ -17,35 +19,39 @@ object AddTodo {
 
 	def render = {
 
-    logger.info("I'm called")
+    logger.debug("I'm called")
 
-		def process(item: Item): JsCmd = {
+		def process(item: Item): Unit = {
 
-      logger.info("My item id is " + item.id)
+      logger.debug("My item id is " + item.id)
 
       val descId = item.description.uniqueFieldId openOr ""
 
       val errors = item.validate
       if (!errors.isEmpty) {
         S.error(errors)
-        return Focus(descId)
+        S.appendJs(Focus(descId))
+        return
       }
 
-      if (item.save) {
-
-        S.notice("Successfully added")
-
-        SetHtml("todo_add", <lift:embed what="/todo/_add"/>) &
-        SetHtml("todo_list", <lift:embed what="/todo/_list"/>) &
-        SetValById(descId, "") &
-        Focus(descId)
+      try {
+        items insert item
       }
-      else {
-        S.error("Something bad happened")
-        Focus(descId)
+      catch {
+        case _ => {
+          S.error("Something bad happened")
+          return Focus(descId)
+        }
       }
+
+      S.notice("Successfully added")
+
+      S.appendJs(SetHtml("todo_add", <lift:embed what="/todo/_add"/>) &
+                  SetHtml("todo_list", <lift:embed what="/todo/_list"/>) &
+                  SetValById(descId, "") &
+                  Focus(descId))
 		}
 
-		"#add_form" #> Item.create.toForm(Full("Plan!"), { process _ })
+		"#add_form" #> Item.createRecord.toForm(Full("Plan!"))({ process _ })
 	}
 }
